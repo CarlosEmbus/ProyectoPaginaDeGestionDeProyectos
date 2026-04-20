@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMI Project Manager Pro</title>
+  <meta name="description" content="Gestión de proyectos estructurada basada en los estándares del PMI.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <i data-lucide="layers"></i>
+      <h1>ProyectoManager<span style="color:var(--primary-color)">Pro</span></h1>
+    </div>
+    <nav class="nav-links">
+      <button class="nav-link active" data-view="projects">
+        <i data-lucide="folder"></i> Mis Proyectos
+      </button>
+      
+      <div id="project-nav" style="display: none; flex-direction: column; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-tertiary); padding: 0 1rem; margin-bottom: 0.5rem;" id="active-project-label">Ningún Proyecto</div>
+        <button class="nav-link" data-view="dashboard">
+          <i data-lucide="layout-dashboard"></i> Dashboard
+        </button>
+        <button class="nav-link" data-view="wbs">
+          <i data-lucide="network"></i> Alcance & EDT (WBS)
+        </button>
+        <button class="nav-link" data-view="risks">
+          <i data-lucide="alert-triangle"></i> Gestión de Riesgos
+        </button>
+        <button class="nav-link" data-view="communications">
+          <i data-lucide="messages-square"></i> Comunicaciones
+        </button>
+        <button class="nav-link" onclick="app.closeProject()">
+          <i data-lucide="log-out"></i> Cerrar Proyecto
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="header">
+      <h2 id="view-title">Mis Proyectos</h2>
+      <button class="btn btn-primary" id="btn-global-action" onclick="app.createNewProject()">
+        <i data-lucide="plus"></i> <span id="global-action-text">Nuevo Proyecto</span>
+      </button>
+    </header>
+
+    <div class="content-body" id="app-container">
+
+      <!-- PROJECTS VIEW -->
+      <div id="view-projects" class="view-section fade-in">
+        <div class="stats-grid" id="projects-grid">
+          <!-- Project Cards Rendered Here -->
+        </div>
+      </div>
+      
+      <!-- DASHBOARD VIEW -->
+      <div id="view-dashboard" class="view-section fade-in hidden">
+        <div class="stats-grid">
+          <div class="card stat-card">
+            <span class="stat-title">Presupuesto Total (EDT)</span>
+            <span class="stat-value" id="dashboard-budget">$0</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Riesgos Activos</span>
+            <span class="stat-value" id="dashboard-risks">0</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Entregables Definidos</span>
+            <span class="stat-value" id="dashboard-deliverables">0</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Resumen del Proyecto (Acta de Constitución)</h3>
+          </div>
+          <p style="color: var(--text-secondary); line-height: 1.6;">
+            Asegúrese de documentar los entregables en la sección de Alcance y de definir una Estructura de Desglose de Trabajo (EDT) detallada para mantener bajo control los costos y tiempos según los estándares PMI.
+          </p>
+        </div>
+      </div>
+
+      <!-- WBS VIEW -->
+      <div id="view-wbs" class="view-section fade-in hidden">
+        <div class="card" style="overflow-x: auto; min-height: 500px; background-color: var(--bg-tertiary);">
+          <div class="card-header" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 0; border: 1px solid var(--border-color);">
+            <h3 class="card-title">Estructura de Desglose de Trabajo (EDT)</h3>
+          </div>
+          <div class="tree-container" id="wbs-tree-container">
+            <!-- WBS Tree Rendered Here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RISKS VIEW -->
+      <div id="view-risks" class="view-section fade-in hidden">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Registro de Riesgos</h3>
+            <button class="btn btn-secondary btn-sm" onclick="app.openRiskModal()">
+              <i data-lucide="plus-circle"></i> Nuevo Riesgo
+            </button>
+          </div>
+          <div class="table-wrapper">
+            <table class="table" style="min-width: 800px;">
+              <thead>
+                <tr>
+                  <th>Riesgo Identificado</th>
+                  <th>Probabilidad</th>
+                  <th>Impacto</th>
+                  <th>Estrategia de Mitigación</th>
+                  <th>Estado</th>
+                  <th style="text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="risks-table-body">
+                <!-- Risks Rendered Here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNICATIONS VIEW -->
+      <div id="view-communications" class="view-section fade-in hidden">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Matriz de Comunicaciones</h3>
+            <button class="btn btn-secondary btn-sm" onclick="app.openCommsModal()">
+              <i data-lucide="plus-circle"></i> Nuevo Plan
+            </button>
+          </div>
+          <div class="table-wrapper">
+            <table class="table" style="min-width: 800px;">
+              <thead>
+                <tr>
+                  <th>Interesado (Stakeholder)</th>
+                  <th>Información Requerida</th>
+                  <th>Medio de Comunicación</th>
+                  <th>Frecuencia</th>
+                  <th style="text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="comms-table-body">
+                <!-- Comms Rendered Here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modals -->
+
+  <!-- Modal WBS -->
+  <div class="modal-overlay" id="modal-wbs">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Agregar Tarea EDT</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-wbs" onsubmit="app.saveWbs(event)">
+        <div class="form-group">
+          <label class="form-label">ID de Tarea (Ej. 1.1)</label>
+          <input type="text" class="form-control" id="wbs-id" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre de la Tarea</label>
+          <input type="text" class="form-control" id="wbs-name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Presupuesto ($)</label>
+          <input type="number" class="form-control" id="wbs-budget" value="0" min="0" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Tarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Risk -->
+  <div class="modal-overlay" id="modal-risk">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Riesgo</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-risk" onsubmit="app.saveRisk(event)">
+        <div class="form-group">
+          <label class="form-label">Descripción del Riesgo</label>
+          <input type="text" class="form-control" id="risk-desc" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Probabilidad</label>
+            <select class="form-control" id="risk-prob" required>
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Impacto</label>
+            <select class="form-control" id="risk-impact" required>
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estrategia de Mitigación</label>
+          <input type="text" class="form-control" id="risk-mitigation" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Riesgo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Comms -->
+  <div class="modal-overlay" id="modal-comms">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Plan de Comunicación</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-comms" onsubmit="app.saveComms(event)">
+        <div class="form-group">
+          <label class="form-label">Interesado (Stakeholder)</label>
+          <input type="text" class="form-control" id="comm-stakeholder" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Información a Comunicar</label>
+          <input type="text" class="form-control" id="comm-info" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Medio</label>
+            <select class="form-control" id="comm-method" required>
+              <option value="Email">Email</option>
+              <option value="Reunión Presencial">Reunión Presencial</option>
+              <option value="Videollamada">Videollamada</option>
+              <option value="Dashboard/Reporte">Dashboard/Reporte</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Frecuencia</label>
+            <select class="form-control" id="comm-frequency" required>
+              <option value="Diaria">Diaria</option>
+              <option value="Semanal">Semanal</option>
+              <option value="Mensual">Mensual</option>
+              <option value="Por Hito">Por Hito</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Plan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Componentes y Lógica (Arquitectura Modular) -->
+  <script src="js/store.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/views/projects.js"></script>
+  <script src="js/views/dashboard.js"></script>
+  <script src="js/views/wbs.js"></script>
+  <script src="js/views/risks.js"></script>
+  <script src="js/views/comms.js"></script>
+  <!-- Main Bootstrapper -->
+  <script src="app.js"></script>
+
+  <script>
+    // Inyección de dependencias para los atributos onclick de HTML
+    window.app.createNewProject = window.projectsView.createNewProject.bind(window.projectsView);
+    window.app.closeProject = window.projectsView.closeProject.bind(window.projectsView);
+    window.app.openRiskModal = window.risksView.openRiskModal.bind(window.risksView);
+    window.app.openCommsModal = window.commsView.openCommsModal.bind(window.commsView);
+    window.app.saveRisk = window.risksView.saveRisk.bind(window.risksView);
+    window.app.saveComms = window.commsView.saveComms.bind(window.commsView);
+    window.app.closeModals = window.utils.closeModals;
+    
+    lucide.createIcons();
+  </script>
+</body>
+</html>
