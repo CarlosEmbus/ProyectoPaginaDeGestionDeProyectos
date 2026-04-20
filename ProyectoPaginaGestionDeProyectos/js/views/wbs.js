@@ -24,7 +24,9 @@ window.wbsView = {
             <div class="tree-node">
               <div class="node-num">${displayNum}</div>
               <textarea class="node-name" rows="2" onchange="window.wbsView.updateWbsName('${child.id}', this.value)" placeholder="Nombre Tarea">${child.name}</textarea>
-              <div class="node-budget-container">
+              <div style="width: 100%; border-bottom: 1px dashed var(--border-color); margin: 0.2rem 0;"></div>
+              <input type="text" style="font-size:0.75rem; width:100%; text-align:center; border:none; outline:none; background:transparent; color:var(--primary-color); font-weight: 600;" placeholder="Responsable..." value="${child.owner || ''}" onchange="window.wbsView.updateWbsOwner('${child.id}', this.value)" />
+              <div class="node-budget-container" style="margin-top:0.4rem;">
                 $ <input type="number" class="node-budget" value="${child.budget}" onchange="window.wbsView.updateWbsBudget('${child.id}', this.value)" />
               </div>
               <div class="node-actions">
@@ -51,6 +53,12 @@ window.wbsView = {
     window.dashboardView.updateDashboard();
   },
 
+  updateWbsOwner(id, val) {
+    const node = window.state.wbs.find(t => t.id === id);
+    if(node) node.owner = val;
+    window.dashboardView.updateDashboard();
+  },
+
   updateWbsBudget(id, val) {
     const node = window.state.wbs.find(t => t.id === id);
     if(node) node.budget = parseFloat(val) || 0;
@@ -62,6 +70,7 @@ window.wbsView = {
       id: 'node-' + Date.now(),
       name: 'Nueva Tarea',
       budget: 0,
+      owner: '',
       parentId: parentId
     });
     this.renderWbs();

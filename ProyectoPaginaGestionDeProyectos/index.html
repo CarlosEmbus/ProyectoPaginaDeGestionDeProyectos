@@ -62,6 +62,16 @@
       
       <!-- DASHBOARD VIEW -->
       <div id="view-dashboard" class="view-section fade-in hidden">
+        <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+          <h3 class="card-title" style="margin: 0;">Estado del Proyecto:</h3>
+          <select class="form-control" id="project-status" style="width: auto; padding: 0.4rem; font-size: 0.85rem;" onchange="window.dashboardView.updateProjectStatus(this.value)">
+            <option value="Planeado">Planeado</option>
+            <option value="Ejecución">Ejecución</option>
+            <option value="Estabilización">Estabilización</option>
+            <option value="Terminado">Terminado</option>
+          </select>
+        </div>
+
         <div class="stats-grid">
           <div class="card stat-card">
             <span class="stat-title">Presupuesto Total (EDT)</span>
@@ -79,11 +89,10 @@
         
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Resumen del Proyecto (Acta de Constitución)</h3>
+            <h3 class="card-title">Alcance Detallado del Proyecto</h3>
+            <button class="btn btn-secondary btn-sm" onclick="window.dashboardView.saveScope()">Guardar Alcance</button>
           </div>
-          <p style="color: var(--text-secondary); line-height: 1.6;">
-            Asegúrese de documentar los entregables en la sección de Alcance y de definir una Estructura de Desglose de Trabajo (EDT) detallada para mantener bajo control los costos y tiempos según los estándares PMI.
-          </p>
+          <textarea id="project-scope" class="form-control" rows="8" placeholder="Describe aquí de manera exhaustiva el alcance del proyecto, incluyendo objetivos específicos, productos entregables, requisitos funcionales y no funcionales, límites del proyecto y criterios de aceptación."></textarea>
         </div>
       </div>
 

@@ -6,8 +6,10 @@ window.projectsView = {
     const newProject = {
       id: 'proj_' + Date.now(),
       name: defaultName,
+      status: 'Planeado',
+      scope: '',
       wbs: [
-        { id: 'root', name: defaultName, budget: 0, parentId: null }
+        { id: 'root', name: defaultName, budget: 0, owner: '', parentId: null }
       ],
       risks: [],
       comms: []
@@ -63,6 +65,12 @@ window.projectsView = {
     
     grid.innerHTML = window.internalState.db.projects.map(p => {
       const budget = p.wbs.reduce((sum, task) => sum + parseFloat(task.budget || 0), 0);
+      
+      let statusColor = 'var(--text-secondary)';
+      if(p.status === 'Ejecución') statusColor = 'var(--primary-color)';
+      if(p.status === 'Estabilización') statusColor = 'var(--warning-color)';
+      if(p.status === 'Terminado') statusColor = 'var(--success-color)';
+
       return `
         <div class="card stat-card" style="cursor: pointer; position: relative;" onclick="window.projectsView.openProject('${p.id}')">
           <div style="position: absolute; top: 1rem; right: 1rem;">
@@ -70,6 +78,7 @@ window.projectsView = {
           </div>
           <span class="stat-title">Proyecto</span>
           <span class="stat-value" style="font-size: 1.25rem;">${p.name}</span>
+          <span style="display:inline-block; margin-top: 0.25rem; font-size:0.75rem; font-weight:600; color: ${statusColor}; text-transform: uppercase;">• ${p.status || 'Planeado'}</span>
           <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
              <span><i data-lucide="network" style="width:14px;height:14px;vertical-align:middle;"></i> Tareas: ${p.wbs.length}</span>
              <span><i data-lucide="dollar-sign" style="width:14px;height:14px;vertical-align:middle;"></i> ${window.utils.formatCurrency(budget)}</span>
