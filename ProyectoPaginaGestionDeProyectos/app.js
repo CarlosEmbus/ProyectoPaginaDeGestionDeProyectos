@@ -1,11 +1,20 @@
 window.app = {
-  init() {
+  async init() {
     this.bindNavigation();
+    
+    // Pre-loading state
+    const grid = document.getElementById('projects-grid');
+    if(grid) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; font-weight:600; color: var(--primary-color);">Conectando con Google Firebase Nube ☁️...</div>';
+    }
+    
+    // Wait for cloud persistence
+    await window.Database.load();
     window.projectsView.renderProjects();
     
     // Auto Select first project if exists
-    if(window.internalState.db.projects.length > 0) {
-      // Nothing, just let user pick
+    if(window.internalState.db.projects && window.internalState.db.projects.length > 0) {
+      // Terminado
     }
   },
 
