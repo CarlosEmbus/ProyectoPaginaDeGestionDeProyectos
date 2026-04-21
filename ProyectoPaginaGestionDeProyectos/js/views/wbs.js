@@ -48,43 +48,57 @@ window.wbsView = {
     window.dashboardView.updateDashboard();
   },
 
-  updateWbsName(id, val) {
+  async updateWbsName(id, val) {
     const node = window.state.wbs.find(t => t.id === id);
-    if(node) node.name = val;
-    window.dashboardView.updateDashboard();
+    if(node) {
+      node.name = val;
+      window.dashboardView.updateDashboard();
+      await window.api.wbs.save(window.getProject().id, node);
+    }
   },
 
-  updateWbsOwner(id, val) {
+  async updateWbsOwner(id, val) {
     const node = window.state.wbs.find(t => t.id === id);
-    if(node) node.owner = val;
-    window.dashboardView.updateDashboard();
+    if(node) {
+      node.owner = val;
+      window.dashboardView.updateDashboard();
+      await window.api.wbs.save(window.getProject().id, node);
+    }
   },
 
-  updateWbsBudget(id, val) {
+  async updateWbsBudget(id, val) {
     const node = window.state.wbs.find(t => t.id === id);
-    if(node) node.budget = parseFloat(val) || 0;
-    window.dashboardView.updateDashboard();
+    if(node) {
+      node.budget = parseFloat(val) || 0;
+      window.dashboardView.updateDashboard();
+      await window.api.wbs.save(window.getProject().id, node);
+    }
   },
 
-  addChildWbs(parentId) {
-    window.state.wbs.push({
+  async addChildWbs(parentId) {
+    const newNode = {
       id: 'node-' + Date.now(),
       name: 'Nueva Tarea',
       budget: 0,
       owner: '',
       parentId: parentId
-    });
+    };
+    window.state.wbs.push(newNode);
     this.renderWbs();
+    await window.api.wbs.save(window.getProject().id, newNode);
   },
 
-  deleteWbs(id) {
-    if(confirm('¿Eliminar esta tarea y todas sus sub-tareas?')) {
-      const deleteRecursive = (nodeId) => {
+  async deleteWbs(id) {
+    if(confirm('¿Eliminar esta tarea y todas sus sub-tareas de la nube?')) {
+      const deleteRecursive = async (nodeId) => {
         const children = window.state.wbs.filter(t => t.parentId === nodeId);
-        children.forEach(c => deleteRecursive(c.id));
+        for(let c of children) {
+          await deleteRecursive(c.id);
+        }
         window.state.wbs = window.state.wbs.filter(t => t.id !== nodeId);
+        await window.api.wbs.delete(window.getProject().id, nodeId);
       };
-      deleteRecursive(id);
+      await deleteRecursive(id);
       this.renderWbs();
     }
   },
@@ -116,7 +130,7 @@ window.wbsView = {
     document.getElementById('modal-wbs-dict').classList.add('active');
   },
 
-  saveWbsDict(e) {
+  async saveWbsDict(e) {
     e.preventDefault();
     const id = document.getElementById('dict-node-id').value;
     const node = window.state.wbs.find(t => t.id === id);
@@ -142,5 +156,7 @@ window.wbsView = {
     window.dashboardView.updateDashboard();
     this.renderWbs();
     window.utils.closeModals();
+    
+    await window.api.wbs.save(window.getProject().id, node);
   }
 };

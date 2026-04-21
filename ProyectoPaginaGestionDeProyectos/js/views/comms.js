@@ -21,25 +21,28 @@ window.commsView = {
     window.dashboardView.updateDashboard();
   },
 
-  saveComms(e) {
+  async saveComms(e) {
     e.preventDefault();
     const stakeholder = document.getElementById('comm-stakeholder').value;
     const info = document.getElementById('comm-info').value;
     const method = document.getElementById('comm-method').value;
     const frequency = document.getElementById('comm-frequency').value;
     
-    window.state.comms.push({
-      id: Date.now(), stakeholder, info, method, frequency
-    });
+    const newComm = { id: Date.now().toString(), stakeholder, info, method, frequency };
     
+    window.state.comms.push(newComm);
     this.renderComms();
     window.utils.closeModals();
+    
+    await window.api.comms.save(window.getProject().id, newComm);
   },
 
-  deleteComms(id) {
-    if(confirm('¿Eliminar este plan de comunicación?')) {
+  async deleteComms(id) {
+    if(confirm('¿Eliminar este plan de comunicación de la nube?')) {
       window.state.comms = window.state.comms.filter(c => c.id !== id);
       this.renderComms();
+      
+      await window.api.comms.delete(window.getProject().id, id);
     }
   },
 

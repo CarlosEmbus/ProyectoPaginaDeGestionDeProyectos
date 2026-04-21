@@ -3,8 +3,6 @@ window.dashboardView = {
     const proj = window.getProject();
     if(!proj) return;
     
-    window.saveDb(); // Auto-save trigger
-    
     const totalBudget = window.state.wbs.reduce((sum, task) => sum + parseFloat(task.budget || 0), 0);
     document.getElementById('dashboard-budget').innerText = window.utils.formatCurrency(totalBudget);
     document.getElementById('dashboard-risks').innerText = window.state.risks.length;
@@ -17,20 +15,21 @@ window.dashboardView = {
     if(scopeEl) scopeEl.value = proj.scope || '';
   },
 
-  updateProjectStatus(val) {
+  async updateProjectStatus(val) {
     const proj = window.getProject();
     if(proj) {
       proj.status = val;
-      window.saveDb();
+      await window.api.projects.update(proj.id, { status: val });
     }
   },
 
-  saveScope() {
+  async saveScope() {
     const proj = window.getProject();
     if(proj) {
-      proj.scope = document.getElementById('project-scope').value;
-      window.saveDb();
-      alert('Alcance guardado correctamente.');
+      const scopeVal = document.getElementById('project-scope').value;
+      proj.scope = scopeVal;
+      await window.api.projects.update(proj.id, { scope: scopeVal });
+      alert('Alcance guardado correctamente en la Nube.');
     }
   }
 };
