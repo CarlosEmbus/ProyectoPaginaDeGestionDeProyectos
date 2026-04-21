@@ -31,6 +31,7 @@ window.wbsView = {
               </div>
               <div class="node-actions">
                 <button class="btn-icon btn-sm" onclick="window.wbsView.addChildWbs('${child.id}')" title="Agregar sub-tarea"><i data-lucide="plus"></i></button>
+                <button class="btn-icon btn-sm" onclick="window.wbsView.openWbsDict('${child.id}', '${displayNum}')" title="Diccionario de la EDT"><i data-lucide="book-open"></i></button>
                 ${!isRoot ? `<button class="btn-icon btn-sm btn-danger-text" onclick="window.wbsView.deleteWbs('${child.id}')" title="Eliminar"><i data-lucide="trash-2"></i></button>` : ''}
               </div>
             </div>
@@ -86,5 +87,60 @@ window.wbsView = {
       deleteRecursive(id);
       this.renderWbs();
     }
+  },
+
+  openWbsDict(id, displayNum) {
+    const node = window.state.wbs.find(t => t.id === id);
+    if (!node) return;
+
+    if (!node.dictionary) node.dictionary = {};
+
+    document.getElementById('dict-node-id').value = id;
+    document.getElementById('dict-display-num').innerText = `(${displayNum})`;
+    
+    // Core fields
+    document.getElementById('dict-name').value = node.name || '';
+    document.getElementById('dict-owner').value = node.owner || '';
+    document.getElementById('dict-budget').value = node.budget || 0;
+
+    // Dictionary fields
+    document.getElementById('dict-desc').value = node.dictionary.description || '';
+    document.getElementById('dict-deliverables').value = node.dictionary.deliverables || '';
+    document.getElementById('dict-start-date').value = node.dictionary.startDate || '';
+    document.getElementById('dict-end-date').value = node.dictionary.endDate || '';
+    document.getElementById('dict-milestones').value = node.dictionary.milestones || '';
+    document.getElementById('dict-resources').value = node.dictionary.resources || '';
+    document.getElementById('dict-criteria').value = node.dictionary.criteria || '';
+    document.getElementById('dict-risks').value = node.dictionary.risks || '';
+
+    document.getElementById('modal-wbs-dict').classList.add('active');
+  },
+
+  saveWbsDict(e) {
+    e.preventDefault();
+    const id = document.getElementById('dict-node-id').value;
+    const node = window.state.wbs.find(t => t.id === id);
+    if (!node) return;
+
+    if (!node.dictionary) node.dictionary = {};
+
+    // Core fields sync
+    node.name = document.getElementById('dict-name').value;
+    node.owner = document.getElementById('dict-owner').value;
+    node.budget = parseFloat(document.getElementById('dict-budget').value) || 0;
+
+    // Dictionary fields
+    node.dictionary.description = document.getElementById('dict-desc').value;
+    node.dictionary.deliverables = document.getElementById('dict-deliverables').value;
+    node.dictionary.startDate = document.getElementById('dict-start-date').value;
+    node.dictionary.endDate = document.getElementById('dict-end-date').value;
+    node.dictionary.milestones = document.getElementById('dict-milestones').value;
+    node.dictionary.resources = document.getElementById('dict-resources').value;
+    node.dictionary.criteria = document.getElementById('dict-criteria').value;
+    node.dictionary.risks = document.getElementById('dict-risks').value;
+
+    window.dashboardView.updateDashboard();
+    this.renderWbs();
+    window.utils.closeModals();
   }
 };

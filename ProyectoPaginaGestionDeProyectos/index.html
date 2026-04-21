@@ -208,9 +208,9 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3 class="modal-title">Registrar Riesgo</h3>
-        <button class="btn-icon" onclick="app.closeModals()"><i data-lucide="x"></i></button>
+        <button class="btn-icon" onclick="window.utils.closeModals()"><i data-lucide="x"></i></button>
       </div>
-      <form id="form-risk" onsubmit="app.saveRisk(event)">
+      <form id="form-risk" onsubmit="window.risksView.saveRisk(event)">
         <div class="form-group">
           <label class="form-label">Descripción del Riesgo</label>
           <input type="text" class="form-control" id="risk-desc" required>
@@ -238,8 +238,82 @@
           <input type="text" class="form-control" id="risk-mitigation" required>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancelar</button>
+          <button type="button" class="btn btn-secondary" onclick="window.utils.closeModals()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Riesgo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal WBS Dictionary -->
+  <div class="modal-overlay" id="modal-wbs-dict">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title">Diccionario de la EDT <span id="dict-display-num" style="color: var(--primary-color); font-size: 1rem; margin-left: 0.5rem;"></span></h3>
+        <button class="btn-icon" onclick="window.utils.closeModals()"><i data-lucide="x"></i></button>
+      </div>
+      <form id="form-wbs-dict" onsubmit="window.wbsView.saveWbsDict(event)">
+        <input type="hidden" id="dict-node-id">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Paquete de Trabajo</label>
+            <input type="text" class="form-control" id="dict-name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Responsable</label>
+            <input type="text" class="form-control" id="dict-owner">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Presupuesto ($)</label>
+            <input type="number" class="form-control" id="dict-budget" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descripción del paquete de trabajo</label>
+          <textarea class="form-control" id="dict-desc" rows="2" placeholder="Explicación clara y detallada de qué es el trabajo..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Entregables</label>
+          <textarea class="form-control" id="dict-deliverables" rows="2" placeholder="Descripción física o funcional del resultado final..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha de Inicio</label>
+            <input type="date" class="form-control" id="dict-start-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de Finalización</label>
+            <input type="date" class="form-control" id="dict-end-date">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Hitos asociados</label>
+          <input type="text" class="form-control" id="dict-milestones" placeholder="Fechas clave o hitos significativos...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Recursos requeridos</label>
+          <input type="text" class="form-control" id="dict-resources" placeholder="Recursos humanos, materiales o equipos...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Criterios de aceptación (DOD)</label>
+          <textarea class="form-control" id="dict-criteria" rows="2" placeholder="Lista de verificación que detalla lo que el cliente avala para verificar que la entrega sea correcta..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Riesgos Específicos</label>
+          <textarea class="form-control" id="dict-risks" rows="2" placeholder="Identificación de posibles riesgos relacionados con esta tarea..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="window.utils.closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Diccionario</button>
         </div>
       </form>
     </div>
