@@ -2,9 +2,9 @@ window.api.projects = {
   collection: () => window.api.db.collection('projects'),
 
   async getAll() {
-    if (!window.api.db) return [];
+    if (!window.api.db || !window.internalState.userProfile) return [];
     try {
-      const snapshot = await this.collection().get();
+      const snapshot = await this.collection().where('userId', '==', window.internalState.userProfile.uid).get();
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
       console.error("API Error - getProjects:", error);
@@ -14,6 +14,7 @@ window.api.projects = {
 
   async create(projectData) {
     if (!window.api.db) return projectData;
+    projectData.userId = window.internalState.userProfile.uid;
     await this.collection().doc(projectData.id).set(projectData);
     return projectData;
   },

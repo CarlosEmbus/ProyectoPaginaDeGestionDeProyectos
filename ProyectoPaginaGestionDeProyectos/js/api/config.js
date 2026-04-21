@@ -16,3 +16,4 @@ if (window.firebase && !window.firebase.apps.length) {
 window.api = {
   db: window.firebase ? window.firebase.firestore() : null
 };
+window.auth = window.firebase ? window.firebase.auth() : null;

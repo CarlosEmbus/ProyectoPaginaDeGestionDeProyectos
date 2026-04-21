@@ -10,6 +10,7 @@
   <!-- Firebase Compat Scripts (Standard for CDN/No-bundler context) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -40,8 +41,18 @@
         <button class="nav-link" data-view="communications">
           <i data-lucide="messages-square"></i> Comunicaciones
         </button>
-        <button class="nav-link" onclick="app.closeProject()">
+        <button class="nav-link" onclick="window.projectsView.closeProject()">
           <i data-lucide="log-out"></i> Cerrar Proyecto
+        </button>
+      </div>
+
+      <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div style="font-size: 0.75rem; color: var(--text-tertiary); padding: 0 1rem; margin-bottom: 0.5rem;" id="user-email-label">No logueado</div>
+        <button class="nav-link hidden" data-view="admin" id="nav-admin-btn">
+          <i data-lucide="shield"></i> Panel de Admin
+        </button>
+        <button class="nav-link" onclick="window.authView.handleLogout()">
+          <i data-lucide="power"></i> Cerrar Sesión
         </button>
       </div>
     </nav>
@@ -58,8 +69,52 @@
 
     <div class="content-body" id="app-container">
 
+      <!-- AUTH VIEW -->
+      <div id="view-auth" class="view-section fade-in">
+        <div class="card" style="max-width: 400px; margin: 4rem auto; padding: 2rem;">
+          <div style="text-align: center; margin-bottom: 2rem;">
+            <i data-lucide="shield-check" style="width: 48px; height: 48px; color: var(--primary-color);"></i>
+            <h2 id="auth-title" style="margin-top: 1rem;">Iniciar Sesión</h2>
+          </div>
+          
+          <form id="form-login" onsubmit="window.authView.handleLogin(event)">
+            <div class="form-group">
+              <label class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" id="login-email" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="login-pass" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Ingresar</button>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+              ¿No tienes cuenta? <a href="#" onclick="window.authView.toggleForm()" style="color: var(--primary-color);">Regístrate</a>
+            </p>
+          </form>
+
+          <form id="form-register" class="hidden" onsubmit="window.authView.handleRegister(event)">
+            <div class="form-group">
+              <label class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" id="reg-name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" id="reg-email" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="reg-pass" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Crear Cuenta</button>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+              ¿Ya tienes cuenta? <a href="#" onclick="window.authView.toggleForm()" style="color: var(--primary-color);">Inicia Sesión</a>
+            </p>
+          </form>
+        </div>
+      </div>
+
       <!-- PROJECTS VIEW -->
-      <div id="view-projects" class="view-section fade-in">
+      <div id="view-projects" class="view-section fade-in hidden">
         <div class="stats-grid" id="projects-grid">
           <!-- Project Cards Rendered Here -->
         </div>
@@ -164,6 +219,32 @@
               </thead>
               <tbody id="comms-table-body">
                 <!-- Comms Rendered Here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN VIEW -->
+      <div id="view-admin" class="view-section fade-in hidden">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Gestión de Usuarios</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;">Panel exclusivo para administradores.</p>
+          </div>
+          <div class="table-wrapper">
+            <table class="table" style="min-width: 800px;">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol de Acceso</th>
+                  <th>Estado</th>
+                  <th style="text-align: right;">Acción de Seguridad</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body">
+                <!-- Admin Table Rendered Here -->
               </tbody>
             </table>
           </div>
@@ -365,6 +446,8 @@
 
   <!-- API Microservices Layer -->
   <script src="js/api/config.js"></script>
+  <script src="js/api/auth.js"></script>
+  <script src="js/api/users.js"></script>
   <script src="js/api/projects.js"></script>
   <script src="js/api/wbs.js"></script>
   <script src="js/api/risks.js"></script>
@@ -373,6 +456,8 @@
   <!-- Componentes y Lógica (Arquitectura Modular) -->
   <script src="js/store.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/views/auth.js"></script>
+  <script src="js/views/admin.js"></script>
   <script src="js/views/projects.js"></script>
   <script src="js/views/dashboard.js"></script>
   <script src="js/views/wbs.js"></script>
