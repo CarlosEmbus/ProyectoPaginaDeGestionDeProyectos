@@ -18,8 +18,12 @@ window.app = {
         
         if (profile.role === 'admin') {
           document.getElementById('nav-admin-btn').classList.remove('hidden');
+          const pBtn = document.getElementById('nav-portfolio-btn');
+          if(pBtn) pBtn.classList.remove('hidden');
         } else {
           document.getElementById('nav-admin-btn').classList.add('hidden');
+          const pBtn = document.getElementById('nav-portfolio-btn');
+          if(pBtn) pBtn.classList.add('hidden');
         }
         
         // Enforce UI
@@ -81,6 +85,9 @@ window.app = {
         
         if (targetView === 'admin') {
            window.adminView.renderAdminPanel();
+        }
+        if (targetView === 'portfolio') {
+           window.portfolioView.renderPortfolio();
         }
         
         navLinks.forEach(btn => btn.classList.remove('active'));

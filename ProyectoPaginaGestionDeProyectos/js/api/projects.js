@@ -12,6 +12,17 @@ window.api.projects = {
     }
   },
 
+  async getAllPortfolio() {
+    if (!window.api.db) return [];
+    try {
+      const snapshot = await this.collection().get();
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error("API Error - getAllPortfolio:", error);
+      return [];
+    }
+  },
+
   async create(projectData) {
     if (!window.api.db) return projectData;
     projectData.userId = window.internalState.userProfile.uid;

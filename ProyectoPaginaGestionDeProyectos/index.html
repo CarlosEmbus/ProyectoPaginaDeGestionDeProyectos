@@ -13,6 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   
@@ -25,6 +26,9 @@
     <nav class="nav-links">
       <button class="nav-link active" data-view="projects">
         <i data-lucide="folder"></i> Mis Proyectos
+      </button>
+      <button class="nav-link hidden" data-view="portfolio" id="nav-portfolio-btn">
+        <i data-lucide="briefcase"></i> Portafolio Ejecutivo
       </button>
       
       <div id="project-nav" style="display: none; flex-direction: column; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
@@ -120,6 +124,97 @@
         </div>
       </div>
       
+      <!-- PORTFOLIO VIEW -->
+      <div id="view-portfolio" class="view-section fade-in hidden">
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+          <div class="card stat-card">
+            <span class="stat-title">Proyectos en Portafolio</span>
+            <span class="stat-value" id="portfolio-total-projects">0</span>
+            <span style="font-size: 0.85rem; color: var(--text-tertiary);" id="portfolio-project-breakdown">0 Activos / 0 Cerrados / 0 Propuestos</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Presupuesto (Aprobado vs Ejecutado)</span>
+            <span class="stat-value" id="portfolio-total-budget">$0</span>
+            <span style="font-size: 0.85rem; color: var(--text-tertiary);" id="portfolio-executed-budget">Ejecutado: $0</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Promedios de Rendimiento</span>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-tertiary);">CPI Promedio</div>
+                <div style="font-weight: bold; color: var(--primary-color);" id="portfolio-avg-cpi">0.0</div>
+              </div>
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-tertiary);">SPI Promedio</div>
+                <div style="font-weight: bold; color: var(--primary-color);" id="portfolio-avg-spi">0.0</div>
+              </div>
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-tertiary);">ROI Promedio</div>
+                <div style="font-weight: bold; color: var(--success-color);" id="portfolio-avg-roi">0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div class="card">
+            <h3 class="card-title">Distribución por Estado</h3>
+            <div style="position: relative; height: 250px; width: 100%;">
+              <canvas id="portfolio-status-chart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Inversión por Área/Dpto</h3>
+            <div style="position: relative; height: 250px; width: 100%;">
+              <canvas id="portfolio-dept-chart"></canvas>
+            </div>
+          </div>
+          <div class="card" style="grid-column: 1 / -1;">
+            <h3 class="card-title">Curva S - Valor Ganado (EVA) Acumulado</h3>
+            <div style="position: relative; height: 250px; width: 100%;">
+              <canvas id="portfolio-eva-chart"></canvas>
+            </div>
+          </div>
+          <div class="card" style="grid-column: 1 / -1;">
+            <h3 class="card-title">Matriz de Riesgo Agregado</h3>
+            <div style="position: relative; height: 250px; width: 100%;">
+              <canvas id="portfolio-risk-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Listado de Proyectos del Portafolio</h3>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" class="form-control" placeholder="Buscar proyecto..." style="width: 250px;" id="portfolio-search" onkeyup="window.portfolioView.filterProjects()">
+              <button class="btn btn-secondary btn-sm" onclick="window.portfolioView.renderPortfolio()"><i data-lucide="refresh-cw"></i> Actualizar</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="table" style="min-width: 1000px;" id="portfolio-table">
+              <thead>
+                <tr>
+                  <th onclick="window.portfolioView.sort('name')" style="cursor: pointer;">Nombre <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th onclick="window.portfolioView.sort('code')" style="cursor: pointer;">Código <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th>PM</th>
+                  <th onclick="window.portfolioView.sort('status')" style="cursor: pointer;">Estado <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th onclick="window.portfolioView.sort('budget')" style="cursor: pointer;">Presupuesto <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th onclick="window.portfolioView.sort('progress')" style="cursor: pointer;">% Avance <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th onclick="window.portfolioView.sort('cpi')" style="cursor: pointer;">CPI <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th onclick="window.portfolioView.sort('spi')" style="cursor: pointer;">SPI <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th onclick="window.portfolioView.sort('roi')" style="cursor: pointer;">ROI <i data-lucide="arrow-up-down" style="width: 14px; height: 14px;"></i></th>
+                  <th>Última Actualización</th>
+                </tr>
+              </thead>
+              <tbody id="portfolio-table-body">
+                <!-- Portfolio rows rendered here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
       <!-- DASHBOARD VIEW -->
       <div id="view-dashboard" class="view-section fade-in hidden">
         <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
@@ -147,6 +242,31 @@
           </div>
         </div>
         
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Indicadores de Rendimiento (KPIs Manuales)</h3>
+            <button class="btn btn-secondary btn-sm" onclick="window.dashboardView.saveKPIs()">Guardar KPIs</button>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; padding: 1rem 0;">
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+              <label class="form-label">% Avance Físico</label>
+              <input type="number" class="form-control" id="dash-progress" min="0" max="100" value="0">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+              <label class="form-label">CPI (Índice de Costo)</label>
+              <input type="number" step="0.01" class="form-control" id="dash-cpi" value="1.00">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+              <label class="form-label">SPI (Índice de Cronograma)</label>
+              <input type="number" step="0.01" class="form-control" id="dash-spi" value="1.00">
+            </div>
+            <div class="form-group" style="flex: 1; min-width: 150px;">
+              <label class="form-label">ROI (%)</label>
+              <input type="number" step="0.1" class="form-control" id="dash-roi" value="0">
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Alcance Detallado del Proyecto</h3>
@@ -459,6 +579,7 @@
   <script src="js/views/auth.js"></script>
   <script src="js/views/admin.js"></script>
   <script src="js/views/projects.js"></script>
+  <script src="js/views/portfolio.js"></script>
   <script src="js/views/dashboard.js"></script>
   <script src="js/views/wbs.js"></script>
   <script src="js/views/risks.js"></script>

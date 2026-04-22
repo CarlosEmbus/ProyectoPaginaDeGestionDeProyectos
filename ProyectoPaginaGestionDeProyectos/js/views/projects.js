@@ -7,7 +7,8 @@ window.projectsView = {
       id: 'proj_' + Date.now(),
       name: defaultName,
       status: 'Planeado',
-      scope: ''
+      scope: '',
+      pmName: window.internalState.userProfile.name || window.internalState.userProfile.email || 'PM'
     };
     
     await window.api.projects.create(newProject);
